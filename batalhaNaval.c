@@ -1,40 +1,182 @@
 #include <stdio.h>
 
-// Desafio Batalha Naval - MateCheck
-// Este código inicial serve como base para o desenvolvimento do sistema de Batalha Naval.
-// Siga os comentários para implementar cada parte do desafio.
+#define navio 3
+#define bomba 2
 
-int main() {
-    // Nível Novato - Posicionamento dos Navios
-    // Sugestão: Declare uma matriz bidimensional para representar o tabuleiro (Ex: int tabuleiro[5][5];).
-    // Sugestão: Posicione dois navios no tabuleiro, um verticalmente e outro horizontalmente.
-    // Sugestão: Utilize `printf` para exibir as coordenadas de cada parte dos navios.
+// Função para exibir o tabuleiro
+void inicializarTabuleiro(int visiveltabuleiro[10][10], int invisiveltabuleiro[10][10])
+{
+    for (int i = 0; i < 10; i++)
+    {
+        for (int j = 0; j < 10; j++)
+        {
+            visiveltabuleiro[i][j] = 0;   // Nenhum tiro registrado
+            invisiveltabuleiro[i][j] = 0; // Sem navios visíveis
+        }
+    }
 
-    // Nível Aventureiro - Expansão do Tabuleiro e Posicionamento Diagonal
-    // Sugestão: Expanda o tabuleiro para uma matriz 10x10.
-    // Sugestão: Posicione quatro navios no tabuleiro, incluindo dois na diagonal.
-    // Sugestão: Exiba o tabuleiro completo no console, mostrando 0 para posições vazias e 3 para posições ocupadas.
+    // Posicionando navios no tabuleiro invisível
+    invisiveltabuleiro[0][0] = navio;
+    invisiveltabuleiro[0][1] = navio;
+    invisiveltabuleiro[0][2] = navio;
 
-    // Nível Mestre - Habilidades Especiais com Matrizes
-    // Sugestão: Crie matrizes para representar habilidades especiais como cone, cruz, e octaedro.
-    // Sugestão: Utilize estruturas de repetição aninhadas para preencher as áreas afetadas por essas habilidades no tabuleiro.
-    // Sugestão: Exiba o tabuleiro com as áreas afetadas, utilizando 0 para áreas não afetadas e 1 para áreas atingidas.
+    invisiveltabuleiro[7][6] = navio;
+    invisiveltabuleiro[8][6] = navio;
+    invisiveltabuleiro[9][6] = navio;
 
-    // Exemplos de exibição das habilidades:
-    // Exemplo para habilidade em cone:
-    // 0 0 1 0 0
-    // 0 1 1 1 0
-    // 1 1 1 1 1
-    
-    // Exemplo para habilidade em octaedro:
-    // 0 0 1 0 0
-    // 0 1 1 1 0
-    // 0 0 1 0 0
+    invisiveltabuleiro[7][1] = navio;
+    invisiveltabuleiro[8][2] = navio;
+    invisiveltabuleiro[9][3] = navio;
+}
 
-    // Exemplo para habilidade em cruz:
-    // 0 0 1 0 0
-    // 1 1 1 1 1
-    // 0 0 1 0 0
+// Exibe o tabuleiro visível (o que o jogador vê)
+void exibirTabuleiro(int visiveltabuleiro[10][10])
+{
+    char coluna[10] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'};
+
+    printf("\n   ");
+    for (int i = 0; i < 10; i++)
+    {
+        printf("%c ", coluna[i]);
+    }
+    printf("\n");
+
+    for (int i = 0; i < 10; i++)
+    {
+        printf("%2d ", i + 1);
+        for (int j = 0; j < 10; j++)
+        {
+            if (visiveltabuleiro[i][j] == 0)
+                printf("0 "); // Agua
+            else if (visiveltabuleiro[i][j] == bomba)
+                printf("X "); // Erro
+            else
+                printf("3 "); // Acertou
+        }
+        printf("\n");
+    }
+}
+
+// Função do jogo principal
+void jogar(int visiveltabuleiro[10][10], int invisiveltabuleiro[10][10])
+{
+    char menu;
+    int escolhaLinha, escolhaColuna;
+    int acertos = 0;
+    int totalNavios = 9; // total de partes de navios no tabuleiro
+
+    do
+    {
+        printf("\nEscolha uma linha (1-10): ");
+        scanf("%d", &escolhaLinha);
+
+        printf("Escolha uma coluna (1-10): ");
+        scanf("%d", &escolhaColuna);
+
+        // Validação simples das entradas para evitar índices fora do array
+        if (escolhaLinha < 1 || escolhaLinha > 10 || escolhaColuna < 1 || escolhaColuna > 10) {
+            printf("Coordenadas invalidas! Tente novamente.\n");
+            continue;
+        }
+
+        if (invisiveltabuleiro[escolhaLinha - 1][escolhaColuna - 1] == navio)
+        {
+            if (visiveltabuleiro[escolhaLinha - 1][escolhaColuna - 1] != navio)
+            {
+                printf("Voce acertou uma parte do navio!\n");
+                visiveltabuleiro[escolhaLinha - 1][escolhaColuna - 1] = navio;
+                acertos++;
+            }
+            else
+            {
+                printf("Voce ja acertou essa parte do navio antes!\n");
+            }
+        }
+        else
+        {
+            if (visiveltabuleiro[escolhaLinha - 1][escolhaColuna - 1] != bomba)
+            {
+                printf("Bomba! Voce errou, tente novamente...\n");
+                visiveltabuleiro[escolhaLinha - 1][escolhaColuna - 1] = bomba;
+            }
+            else
+            {
+                printf("Voce ja atirou aqui e errou antes.\n");
+            }
+        }
+
+        exibirTabuleiro(visiveltabuleiro);
+
+        // Verifica se venceu o jogo
+        if (acertos == totalNavios)
+        {
+            printf("\nParabens! Voce venceu o jogo!\n");
+            printf("Voce acertou todas as partes dos navios!\n");
+            break;
+        }
+
+        printf("\nPressione 'S' para continuar ou 'N' para voltar ao menu: ");
+        scanf(" %c", &menu);
+
+        if (menu == 'S' || menu == 's')
+        {
+            printf("\nContinuando o jogo...\n");
+        }
+        else if (menu != 's' && menu != 'S' && menu != 'n' && menu != 'N')
+        {
+            printf("\nEscolha uma opcao valida!\n");
+        }
+        else
+        {
+            printf("\nVoltando ao menu principal...\n");
+        }
+
+    } while (menu == 'S' || menu == 's');
+}
+
+int main()
+{
+    int opcao;
+    int invisiveltabuleiro[10][10];
+    int visiveltabuleiro[10][10];
+
+    inicializarTabuleiro(visiveltabuleiro, invisiveltabuleiro);
+
+    do
+    {
+        printf("\n");
+        printf("================================\n");
+        printf(" BATALHA NAVAL - DESAFIO NO MAR  \n");
+        printf("================================\n");
+        printf("1) Regras\n");
+        printf("2) Jogar\n");
+        printf("3) Sair\n");
+        printf("Escolha uma opcao: ");
+        scanf("%d", &opcao);
+        getchar();
+
+        switch (opcao)
+        {
+        case 1:
+            printf("\nRegras do Jogo:\n");
+            printf("1) Acerte onde esta o navio\n");
+            printf("2) Ganha quem acerta todas as partes dos navios primeiro (representadas com '3')\n");
+            printf("3) Bombas sao marcadas com 'X'\n");
+            printf("4) Boa sorte!\n");
+            printf("\nPressione 'ENTER' para voltar ao menu principal...");
+            getchar();
+            break;
+        case 2:
+            jogar(visiveltabuleiro, invisiveltabuleiro);
+            break;
+        case 3:
+            printf("Saindo do jogo...\n");
+            break;
+        default:
+            printf("Opcao invalida, tente novamente...\n");
+            break;
+        }
+    } while (opcao != 3);
 
     return 0;
 }
